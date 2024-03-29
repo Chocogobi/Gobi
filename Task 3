@@ -1,0 +1,48 @@
+import json
+from collections import defaultdict
+import datetime
+
+class ExpenseTracker:
+    def __init__(self):
+        self.expenses = defaultdict(list)
+
+    def add_expense(self, category, amount, description):
+        today = datetime.date.today()
+        month_year = today.strftime("%B-%Y")
+        self.expenses[month_year].append({"category": category, "amount": amount, "description": description})
+
+    def monthly_summary(self, month_year):
+        total_expenses = 0
+        category_expenses = defaultdict(int)
+
+        if month_year in self.expenses:
+            for expense in self.expenses[month_year]:
+                total_expenses += expense["amount"]
+                category_expenses[expense["category"]] += expense["amount"]
+
+            print(f"Total expenses for {month_year}: ${total_expenses}")
+            print("Category-wise expenditure:")
+            for category, amount in category_expenses.items():
+                print(f"{category}: ${amount}")
+        else:
+            print("No expenses recorded for this month.")
+
+    def save_to_file(self, filename):
+        with open(filename, 'w') as f:
+            json.dump(self.expenses, f)
+
+    def load_from_file(self, filename):
+        with open(filename, 'r') as f:
+            self.expenses = json.load(f)
+
+# Example usage:
+tracker = ExpenseTracker()
+tracker.add_expense("Food", 50, "Lunch at restaurant")
+tracker.add_expense("Transportation", 30, "Gas refill")
+tracker.add_expense("Entertainment", 20, "Movie tickets")
+
+tracker.save_to_file("expenses.json")
+
+# Later, you can load the data from file and view monthly summary
+tracker.load_from_file("expenses.json")
+tracker.monthly_summary("March-2024")
